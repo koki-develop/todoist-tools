@@ -3,6 +3,9 @@
   "author": "koki-develop <kou.pg.0131@gmail.com>",
   "license": "MIT",
   "private": true,
+  "scripts": {
+    "report": "ts-node main.ts"
+  },
   "dependencies": {
     "axios": "^1.2.1"
   },
