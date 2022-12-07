@@ -9,6 +9,7 @@ import {
   SectionBlock,
   WebClient,
 } from "@slack/web-api";
+import { loadConfig } from "./lib/config";
 
 type Config = {
   base: {
@@ -24,10 +25,7 @@ type Config = {
 };
 
 (async () => {
-  const configJson = fs
-    .readFileSync(`config.${process.env.ENV}.json`)
-    .toString();
-  const config = JSON.parse(configJson) as Config;
+  const config = loadConfig();
 
   const todoist = new TodoistApi(config.base.todoist_token);
 
