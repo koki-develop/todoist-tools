@@ -4,7 +4,8 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "report": "ts-node main.ts"
+    "report": "ENV=dev ts-node main.ts",
+    "report:prd": "ENV=prd ts-node main.ts"
   },
   "dependencies": {
     "@doist/todoist-api-typescript": "^2.1.2",

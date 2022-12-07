@@ -1,7 +1,7 @@
 import axios from "axios";
+import fs from "fs";
 import yesno from "yesno";
 import { Task, TodoistApi } from "@doist/todoist-api-typescript";
-import config from "./config.json";
 import {
   Block,
   DividerBlock,
@@ -10,7 +10,25 @@ import {
   WebClient,
 } from "@slack/web-api";
 
+type Config = {
+  base: {
+    todoist_token: string;
+    todoist_project_id: string;
+  };
+  report: {
+    todoist_section_names: string[];
+    todoist_label_names: string[];
+    slack_token: string;
+    slack_channel: string;
+  };
+};
+
 (async () => {
+  const configJson = fs
+    .readFileSync(`config.${process.env.ENV}.json`)
+    .toString();
+  const config = JSON.parse(configJson) as Config;
+
   const todoist = new TodoistApi(config.base.todoist_token);
 
   const sections = await todoist.getSections(config.base.todoist_project_id);
