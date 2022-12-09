@@ -76,13 +76,15 @@ import { TodoistClient } from "./lib/todoist";
         rows.push(`• ${task.content}`);
       }
     }
-    blocks.push({
-      type: "section",
-      text: {
-        type: "mrkdwn",
-        text: rows.join("\n"),
-      },
-    } as SectionBlock);
+    if (rows.length > 0) {
+      blocks.push({
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: rows.join("\n"),
+        },
+      } as SectionBlock);
+    }
     blocks.push({ type: "divider" } as DividerBlock);
   }
 
