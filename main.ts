@@ -10,7 +10,7 @@ import {
 import { loadConfig } from "./lib/config";
 import { TodoistClient } from "./lib/todoist";
 
-(async () => {
+const report = async () => {
   const config = loadConfig();
   const todoist = new TodoistClient(config.base.todoist_token);
 
@@ -103,4 +103,15 @@ import { TodoistClient } from "./lib/todoist";
     text: "デイリーレポート",
     blocks,
   });
+};
+
+(async () => {
+  const command = process.argv[2];
+  switch (command) {
+    case "report":
+      await report();
+      break;
+    default:
+      throw new Error(`unknown command: ${command}`);
+  }
 })();
