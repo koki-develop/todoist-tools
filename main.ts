@@ -1,3 +1,4 @@
+import fs from "fs";
 import yesno from "yesno";
 import { Task } from "@doist/todoist-api-typescript";
 import {
@@ -7,6 +8,7 @@ import {
   SectionBlock,
   WebClient,
 } from "@slack/web-api";
+import { Parser } from "json2csv";
 import { loadConfig } from "./lib/config";
 import { TodoistClient } from "./lib/todoist";
 
@@ -23,6 +25,7 @@ const report = async () => {
 
   const tasks = await (async () => {
     const activeTasks = await todoist.getTasks(config.base.todoist_project_id);
+
     const since = new Date();
     since.setUTCDate(since.getUTCDate() - 1);
     since.setUTCHours(15, 0, 0, 0);
@@ -30,7 +33,11 @@ const report = async () => {
       config.base.todoist_project_id,
       since
     );
-    return [...activeTasks, ...completedTasks].filter((task) => !task.parentId);
+    return [...activeTasks, ...completedTasks].filter(
+      (task) =>
+        !task.parentId &&
+        sections.some((section) => section.id === task.sectionId)
+    );
   })();
 
   const groupBySection = config.report.todoist_section_names.reduce<
@@ -105,11 +112,74 @@ const report = async () => {
   });
 };
 
+const notionCsv = async () => {
+  const config = loadConfig();
+  const todoist = new TodoistClient(config.base.todoist_token);
+
+  const sections = await (async () => {
+    const sections = await todoist.getSections(config.base.todoist_project_id);
+    return sections.filter((section) =>
+      config.notion_csv.todoist_section_names.includes(section.name)
+    );
+  })();
+
+  const tasks = await (async () => {
+    const activeTasks = await todoist.getTasks(config.base.todoist_project_id);
+
+    const since = new Date();
+    since.setUTCDate(since.getUTCDate() - 2);
+    since.setUTCHours(15, 0, 0, 0);
+    const completedTasks = await todoist.getCompletedTasks(
+      config.base.todoist_project_id,
+      since
+    );
+    return [...activeTasks, ...completedTasks].filter(
+      (task) =>
+        !task.parentId &&
+        sections.some((section) => section.id === task.sectionId) &&
+        config.notion_csv.todoist_label_names.some((label) =>
+          task.labels.includes(label)
+        )
+    );
+  })();
+
+  const parser = new Parser({
+    fields: [
+      {
+        label: "Title",
+        value: "content",
+      },
+      {
+        label: "Status",
+        value: (row: Task) =>
+          sections.find((section) => section.id === row.sectionId)!.name,
+      },
+      {
+        label: "Labels",
+        value: (row: Task) => row.labels.join(","),
+      },
+      {
+        label: "Order",
+        value: "order",
+      },
+      {
+        label: "Todoist Task Id",
+        value: "id",
+      },
+    ],
+  });
+  const csv = parser.parse(tasks);
+  fs.writeFileSync(config.notion_csv.output_path, csv);
+};
+
 (async () => {
   const command = process.argv[2];
   switch (command) {
     case "report":
       await report();
+      break;
+    case "notion-csv":
+      await notionCsv();
       break;
     default:
       throw new Error(`unknown command: ${command}`);
