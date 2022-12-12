@@ -16,6 +16,11 @@ export type Config = {
     slack_token: string;
     slack_channel: string;
   };
+  notion_csv: {
+    todoist_section_names: string[];
+    todoist_label_names: string[];
+    output_path: string;
+  };
 };
 
 export const loadConfig = (): Config => {
