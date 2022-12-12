@@ -16,6 +16,7 @@
     "yesno": "^0.4.0"
   },
   "devDependencies": {
+    "@types/json2csv": "^5.0.3",
     "@types/node": "^18.11.11",
     "prettier": "^2.8.0",
     "ts-node": "^10.9.1",
