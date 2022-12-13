@@ -11,6 +11,7 @@ import {
 import { Parser } from "json2csv";
 import { marked } from "marked";
 import TerminalRenderer from "marked-terminal";
+import csvToMarkdown from "csv-to-markdown-table";
 import { loadConfig } from "./lib/config";
 import { TodoistClient } from "./lib/todoist";
 
@@ -163,6 +164,7 @@ const notionCsv = async () => {
     ],
   });
   const csv = parser.parse(tasks);
+  console.log(marked(csvToMarkdown(csv, ",", true)));
   fs.writeFileSync(config.notion_csv.output_path, csv);
 };
 
