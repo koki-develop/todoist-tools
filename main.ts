@@ -23,21 +23,23 @@ const groupTasksBySection = (
   sections: Section[],
   tasks: Task[]
 ): Record<string, Task[]> => {
-  return tasks.reduce<Record<string, Task[]>>((prev, task) => {
-    const section = sections.find((section) => section.id === task.sectionId);
-    if (!section) {
-      return prev;
-    }
+  return sections.reduce<Record<string, Task[]>>(
+    (prev, section) => {
+      const sectionTasks = tasks.filter(
+        (task) => task.sectionId === section.id
+      );
+      for (const task of sectionTasks) {
+        const name = task.isCompleted ? "DONE" : section.name;
+        if (prev[name] == null) {
+          prev[name] = [task];
+        }
+        prev[name].push(task);
+      }
 
-    const name = task.isCompleted ? "DONE" : section.name;
-    if (prev[name] == null) {
-      prev[name] = [task];
       return prev;
-    }
-
-    prev[name].push(task);
-    return prev;
-  }, {});
+    },
+    { DONE: [] }
+  );
 };
 
 const report = async () => {
