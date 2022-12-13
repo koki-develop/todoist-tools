@@ -12,6 +12,8 @@ import { Parser } from "json2csv";
 import { loadConfig } from "./lib/config";
 import { TodoistClient } from "./lib/todoist";
 
+// TODO: そのうちリファクタする
+
 const report = async () => {
   const config = loadConfig();
   const todoist = new TodoistClient(config.base.todoist_token);
