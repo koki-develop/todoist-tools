@@ -9,8 +9,14 @@ import {
   WebClient,
 } from "@slack/web-api";
 import { Parser } from "json2csv";
+import { marked } from "marked";
+import TerminalRenderer from "marked-terminal";
 import { loadConfig } from "./lib/config";
 import { TodoistClient } from "./lib/todoist";
+
+marked.setOptions({
+  renderer: new TerminalRenderer(),
+});
 
 const groupTasksBySection = (
   sections: Section[],
@@ -91,10 +97,9 @@ const report = async () => {
       } as SectionBlock);
     }
     blocks.push({ type: "divider" } as DividerBlock);
-    previewRows.push("");
   }
 
-  console.log(previewRows.join("\n"));
+  console.log(marked(previewRows.join("\n")));
   console.log("channel:", config.report.slack_channel);
   const ok = await yesno({
     question: "Continue?",
