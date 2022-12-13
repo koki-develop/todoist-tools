@@ -298,6 +298,11 @@ create-require@^1.1.0:
   resolved "https://registry.yarnpkg.com/create-require/-/create-require-1.1.1.tgz#c1d7e8f1e5f6cfc9ff65f9cd352d37348756c333"
   integrity sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ==
 
+csv-to-markdown-table@^1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/csv-to-markdown-table/-/csv-to-markdown-table-1.3.0.tgz#b8234e33275c03968306fff656ae32da19d9bbd7"
+  integrity sha512-Vu9egsDU4kgfWy2mcw6q+2jJKsY4hB8XdbtyivEaWUvejhGtmUwSyLBbzb1nTi2o7Um+vhhRU4DBZr+ByCwLgQ==
+
 delayed-stream@~1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/delayed-stream/-/delayed-stream-1.0.0.tgz#df3ae199acadfb7d440aaae0b29e2272b24ec619"
