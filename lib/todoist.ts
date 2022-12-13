@@ -10,15 +10,38 @@ export class TodoistClient {
     this._api = new TodoistApi(token);
   }
 
-  public async getSections(projectId: string): Promise<Section[]> {
-    return await this._api.getSections(projectId);
+  public async getSections(params: {
+    projectId: string;
+    names: string[];
+  }): Promise<Section[]> {
+    const sections = await this._api.getSections(params.projectId);
+    return sections.filter((section) => params.names.includes(section.name));
   }
 
-  public async getTasks(projectId: string): Promise<Task[]> {
-    return await this._api.getTasks({ projectId });
+  public async getTasks(params: {
+    projectId: string;
+    sections: Section[];
+    labels: string[];
+    completedSince: Date;
+  }): Promise<Task[]> {
+    const activeTasks = await this._api.getTasks({
+      projectId: params.projectId,
+    });
+    const completedTasks = await this._getCompletedTasks(
+      params.projectId,
+      params.completedSince
+    );
+    return [...activeTasks, ...completedTasks].filter((task) => {
+      if (task.parentId) return false;
+      if (!params.sections.some((section) => task.sectionId === section.id))
+        return false;
+      if (!params.labels.some((label) => task.labels.includes(label)))
+        return false;
+      return true;
+    });
   }
 
-  public async getCompletedTasks(
+  private async _getCompletedTasks(
     projectId: string,
     since: Date
   ): Promise<Task[]> {
