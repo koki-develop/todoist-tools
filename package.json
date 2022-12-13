@@ -14,6 +14,8 @@
     "axios": "^1.2.1",
     "envalid": "^7.3.1",
     "json2csv": "^5.0.7",
+    "marked": "^4.2.4",
+    "marked-terminal": "^5.1.1",
     "yesno": "^0.4.0"
   },
   "devDependencies": {
