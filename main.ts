@@ -31,7 +31,7 @@ const groupTasksBySection = (
       for (const task of sectionTasks) {
         const name = task.isCompleted ? "DONE" : section.name;
         if (prev[name] == null) {
-          prev[name] = [task];
+          prev[name] = [];
         }
         prev[name].push(task);
       }
