@@ -11,6 +11,7 @@ export type Config = {
     todoist_project_id: string;
   };
   report: {
+    target_weight: number;
     todoist_section_names: string[];
     todoist_label_names: string[];
     slack_token: string;
