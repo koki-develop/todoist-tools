@@ -21,6 +21,7 @@
     "yesno": "^0.4.0"
   },
   "devDependencies": {
+    "@types/big.js": "^6.1.6",
     "@types/json2csv": "^5.0.3",
     "@types/marked": "^4.0.8",
     "@types/marked-terminal": "^3.1.3",
