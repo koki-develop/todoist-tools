@@ -1,4 +1,6 @@
+import { createInterface } from "readline";
 import fs from "fs";
+import Big from "big.js";
 import yesno from "yesno";
 import { Section, Task } from "@doist/todoist-api-typescript";
 import {
@@ -12,7 +14,7 @@ import { Parser } from "json2csv";
 import { marked } from "marked";
 import TerminalRenderer from "marked-terminal";
 import csvToMarkdown from "csv-to-markdown-table";
-import { loadConfig } from "./lib/config";
+import { env, loadConfig } from "./lib/config";
 import { TodoistClient } from "./lib/todoist";
 
 marked.setOptions({
@@ -42,8 +44,33 @@ const groupTasksBySection = (
   );
 };
 
+const readline = async (): Promise<string> => {
+  const reader = createInterface({ input: process.stdin });
+
+  return new Promise((resolve) => {
+    reader.on("line", (line) => {
+      reader.close();
+      resolve(line);
+    });
+  });
+};
+
 const report = async () => {
+  console.log("Please enter your weight.");
+  const input = await readline();
+  const weight = new Big(input);
+  const prevWeightFile = `prev_weight.${env.ENV}`;
+
   const config = loadConfig();
+  const targetWeight = new Big(config.report.target_weight);
+
+  const prevWeight = (() => {
+    if (!fs.existsSync(prevWeightFile)) {
+      return weight;
+    }
+    return new Big(fs.readFileSync(prevWeightFile, "utf8").toString().trim());
+  })();
+
   const todoist = new TodoistClient(config.base.todoist_token);
 
   const sections = await todoist.getSections({
@@ -65,6 +92,44 @@ const report = async () => {
 
   const previewRows = [];
   const blocks: Block[] = [];
+
+  blocks.push({
+    type: "header",
+    text: { type: "plain_text", text: "DIET" },
+  } as HeaderBlock);
+  blocks.push({
+    type: "section",
+    fields: [
+      {
+        type: "mrkdwn",
+        text: `*現在の体重*\n${weight}kg ( ${(() => {
+          const diff = weight.minus(prevWeight);
+          let op = "±";
+          if (diff.lt(0)) {
+            op = "-";
+          } else if (diff.gt(0)) {
+            op = "+";
+          }
+          return `${op}${diff.abs()}kg`;
+        })()} )`,
+      },
+      {
+        type: "mrkdwn",
+        text: `*目標体重*\n${targetWeight}kg ( 残り${weight.minus(
+          targetWeight
+        )}kg )`,
+      },
+    ],
+  } as SectionBlock);
+  blocks.push({ type: "divider" } as DividerBlock);
+  previewRows.push("# DIET");
+  previewRows.push("*現在の体重*");
+  previewRows.push(
+    `${weight}kg ( 前日との差分: ${weight.minus(prevWeight)}kg )`
+  );
+  previewRows.push("*目標体重*");
+  previewRows.push(`${targetWeight}kg`);
+
   for (const [section, tasks] of Object.entries(groupBySection)) {
     blocks.push({
       type: "header",
@@ -117,6 +182,8 @@ const report = async () => {
     text: "デイリーレポート",
     blocks,
   });
+
+  fs.writeFileSync(prevWeightFile, weight.toString());
 };
 
 const notionCsv = async () => {

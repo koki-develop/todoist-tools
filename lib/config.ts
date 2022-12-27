@@ -1,7 +1,7 @@
 import fs from "fs";
 import { cleanEnv, str } from "envalid";
 
-const env = cleanEnv(process.env, {
+export const env = cleanEnv(process.env, {
   ENV: str({ default: "dev" }),
 });
 
