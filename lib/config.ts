@@ -1,8 +1,9 @@
 import fs from "fs";
-import { cleanEnv, str } from "envalid";
+import { bool, cleanEnv, str } from "envalid";
 
 export const env = cleanEnv(process.env, {
   ENV: str({ default: "dev" }),
+  ONLY_WEIGHT: bool({ default: false }),
 });
 
 export type Config = {
