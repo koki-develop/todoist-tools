@@ -56,61 +56,10 @@ const readline = async (): Promise<string> => {
 };
 
 const report = async () => {
-  console.log("Please enter your weight.");
-  const input = await readline();
-  const weight = new Big(input);
-
   const previewRows = [];
   const blocks: Block[] = [];
 
-  const prevWeightFile = `prev_weight.${env.ENV}`;
-
   const config = loadConfig();
-  const targetWeight = new Big(config.report.target_weight);
-
-  const prevWeight = (() => {
-    if (!fs.existsSync(prevWeightFile)) {
-      return weight;
-    }
-    return new Big(fs.readFileSync(prevWeightFile, "utf8").toString().trim());
-  })();
-
-  blocks.push({
-    type: "header",
-    text: { type: "plain_text", text: "DIET" },
-  } as HeaderBlock);
-  blocks.push({
-    type: "section",
-    fields: [
-      {
-        type: "mrkdwn",
-        text: `*現在の体重*\n${weight}kg ( ${(() => {
-          const diff = weight.minus(prevWeight);
-          let op = "±";
-          if (diff.lt(0)) {
-            op = "-";
-          } else if (diff.gt(0)) {
-            op = "+";
-          }
-          return `${op}${diff.abs()}kg`;
-        })()} )`,
-      },
-      {
-        type: "mrkdwn",
-        text: `*目標体重*\n${targetWeight}kg ( 残り${weight.minus(
-          targetWeight
-        )}kg )`,
-      },
-    ],
-  } as SectionBlock);
-  blocks.push({ type: "divider" } as DividerBlock);
-  previewRows.push("# DIET");
-  previewRows.push("*現在の体重*");
-  previewRows.push(
-    `${weight}kg ( 前日との差分: ${weight.minus(prevWeight)}kg )`
-  );
-  previewRows.push("*目標体重*");
-  previewRows.push(`${targetWeight}kg`);
 
   if (!env.ONLY_WEIGHT) {
     const todoist = new TodoistClient(config.base.todoist_token);
@@ -185,8 +134,6 @@ const report = async () => {
     text: "デイリーレポート",
     blocks,
   });
-
-  fs.writeFileSync(prevWeightFile, weight.toString());
 };
 
 const notionCsv = async () => {
